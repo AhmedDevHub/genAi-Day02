@@ -6,44 +6,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorting Algorithms Demo</title>
     <style>
+        :root {
+            --primary: #4f8cff;
+            --primary-dark: #2563eb;
+            --background: #f4f7fb;
+            --container-bg: #fff;
+            --border-radius: 14px;
+            --shadow: 0 4px 24px rgba(80, 120, 200, 0.10);
+            --text: #222b45;
+            --muted: #6b7280;
+            --error: #e53e3e;
+            --success: #22c55e;
+        }
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background: #f9f9f9;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 32px 0 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 8px #b6c6e6;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
         .container {
-            max-width: 500px;
-            margin: auto;
-            background: #fff;
-            padding: 24px;
+            max-width: 480px;
+            margin: 32px auto 0 auto;
+            background: var(--container-bg);
+            padding: 32px 28px 28px 28px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        label {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        input[type="text"], select {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
-            box-shadow: 0 2px 8px #ccc;
+            font-size: 1rem;
+            margin-bottom: 2px;
+            transition: border 0.2s;
         }
-
-        input,
-        select,
+        input[type="text"]:focus, select:focus {
+            border: 1.5px solid var(--primary);
+            outline: none;
+        }
         button {
-            margin: 8px 0;
-            padding: 8px;
-            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 1.08rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 2px 8px #e0e7ff;
+            transition: background 0.2s, box-shadow 0.2s;
         }
-
+        button:hover, button:focus {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 16px #b6c6e6;
+        }
+        .desc {
+            background: #f1f5fb;
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.98rem;
+            min-height: 38px;
+            margin-bottom: 2px;
+        }
         .result {
-            margin-top: 16px;
+            margin-top: 18px;
             font-weight: bold;
+            background: #e0f2fe;
+            color: var(--primary-dark);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 1.08rem;
+            box-shadow: 0 2px 8px #c7d8f7;
+            word-break: break-all;
+        }
+        #error {
+            color: var(--error);
+            font-size: 0.97em;
+            min-height: 1.5em;
+            margin-bottom: 2px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                max-width: 98vw;
+                padding: 18px 4vw 18px 4vw;
+            }
+            header {
+                padding: 22px 0 12px 0;
+            }
+        }
+        footer {
+            margin-top: auto;
+            background: #f1f5fb;
+            color: var(--muted);
+            text-align: center;
+            padding: 18px 0 12px 0;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
 
 <body>
+    <header>
+        <h1>Sorting Algorithms Visual Demo</h1>
+    </header>
     <div class="container">
-        <h2>Sorting Algorithms Demo</h2>
         <label for="arrayInput">Enter numbers (comma separated):</label>
-        <input type="text" id="arrayInput" placeholder="e.g. 5,3,8,1,2">
-        <div id="error" style="color: red; font-size: 0.95em; min-height: 1.5em;"></div>
+        <input type="text" id="arrayInput" placeholder="e.g. 5, 3, 8, 1, 2">
+        <div id="error"></div>
         <label for="algorithm">Choose algorithm:</label>
-        <select id="algorithm">
+        <select id="algorithm" onchange="showDescription()">
             <option value="quickSort">QuickSort</option>
             <option value="quickSortInPlace">QuickSort (In-Place)</option>
             <option value="quickSortIterative">QuickSort (Iterative)</option>
@@ -51,10 +147,29 @@
             <option value="heapSort">HeapSort</option>
             <option value="builtInSort">Built-in Array.sort</option>
         </select>
+        <div class="desc" id="algoDesc"></div>
         <button onclick="sortArray()">Sort</button>
         <div class="result" id="result"></div>
     </div>
+    <footer>
+        &copy; 2024 Sorting Algorithms Demo &mdash; Powered by JavaScript
+    </footer>
     <script>
+        // Algorithm descriptions
+        const algoDescriptions = {
+            quickSort: "QuickSort: A fast, divide-and-conquer algorithm that recursively partitions the array around a pivot.",
+            quickSortInPlace: "QuickSort (In-Place): Sorts the array directly using partitioning, saving memory.",
+            quickSortIterative: "QuickSort (Iterative): Uses a stack instead of recursion for partitioning.",
+            mergeSort: "MergeSort: Recursively splits the array and merges sorted halves. Stable and efficient.",
+            heapSort: "HeapSort: Builds a heap and repeatedly extracts the max/min to sort the array in-place.",
+            builtInSort: "Built-in Array.sort: JavaScript's native sort method (uses insertion sort or quicksort internally)."
+        };
+        function showDescription() {
+            const algo = document.getElementById('algorithm').value;
+            document.getElementById('algoDesc').textContent = algoDescriptions[algo] || '';
+        }
+        // Show initial description
+        window.onload = showDescription;
         // QuickSort: Recursively sorts and returns a new array
         function quickSort(arr) {
             if (arr.length <= 1) return arr;
